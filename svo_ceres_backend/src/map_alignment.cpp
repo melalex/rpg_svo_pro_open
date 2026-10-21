@@ -219,7 +219,7 @@ bool MapAlignmentSE3::getTransformRansac(Transformation &T_old_new, const int& m
   /* formulate ransac problem */
   opengv::sac::Ransac < opengv::sac_problems::point_cloud::PointCloudSacProblem > ransac;
   std::shared_ptr < opengv::sac_problems::point_cloud::PointCloudSacProblem
-      > relposeproblem_ptr(new opengv::sac_problems::point_cloud::PointCloudSacProblem(adapter));
+      > relposeproblem_ptr(new opengv::sac_problems::point_cloud::PointCloudSacProblem(adapter, false)); // fixed RANSAC seed
   ransac.sac_model_ = relposeproblem_ptr;
   int min_points_thresh = ransac3d_min_pts_;
   if(relax_thresh)

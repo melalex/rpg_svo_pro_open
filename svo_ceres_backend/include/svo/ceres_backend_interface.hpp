@@ -272,6 +272,9 @@ protected:
    */
   void optimizationLoop();
 
+  /// One marginalisation + optimisation step; mutex_backend_ held (see .cpp).
+  void optimizeOnceLocked();
+
   /**
    * @brief Update the active keyframes, i.e. the keyframes that are contained
    *        in the backend.

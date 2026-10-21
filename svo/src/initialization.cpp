@@ -168,7 +168,9 @@ class TranslationSacProblemWithTriangulation : public opengv::sac_problems::rela
 {
 public:
    typedef opengv::sac_problems::relative_pose::TranslationOnlySacProblem Base;
-   TranslationSacProblemWithTriangulation(adapter_t & adapter) : Base(adapter) {}
+   // randomSeed false: a fixed RANSAC seed (12345) instead of time(0) + clock(),
+   // so initialisation is reproducible.
+   TranslationSacProblemWithTriangulation(adapter_t & adapter) : Base(adapter, false) {}
 
    void getSelectedDistancesToModel(
        const model_t & model,
@@ -314,7 +316,7 @@ InitResult FivePointInit::addFrameBundle(
   typedef opengv::sac_problems::relative_pose::CentralRelativePoseSacProblem CentralRelative;
   opengv::relative_pose::CentralRelativeAdapter adapter(f_cur, f_ref);
   std::shared_ptr<CentralRelative> problem_ptr(
-        new CentralRelative(adapter, CentralRelative::NISTER));
+        new CentralRelative(adapter, CentralRelative::NISTER, false)); // fixed RANSAC seed
   opengv::sac::Ransac<CentralRelative> ransac;
   ransac.sac_model_ = problem_ptr;
   ransac.threshold_ = inlier_threshold;
