@@ -22,7 +22,9 @@
 #   define SVO_ERROR_STREAM(x) {std::stringstream ss; ss << x; LOGE("%s", ss.str().c_str()); }
 # else
 #   define SVO_INFO_STREAM(x) {std::cerr<<"\033[0;0m[INFO] SVO: "<<x<<"\033[0;0m"<<std::endl; }
-#   define SVO_DEBUG_STREAM(x) {std::cerr<<"\033[0;0m[DEBUG] SVO: "<<x<<"\033[0;0m"<<std::endl; }
+    // Hidden by default, as ROS_DEBUG is: glog verbosity 10 (GLOG_v=10) shows it.
+#   include <glog/logging.h>
+#   define SVO_DEBUG_STREAM(x) { VLOG(10) << "SVO: " << x; }
 #   define SVO_WARN_STREAM(x) {std::cerr<<"\033[0;33m[WARN] SVO: "<<x<<"\033[0;0m"<<std::endl; }
 #   define SVO_ERROR_STREAM(x) {std::cerr<<"\033[1;31m[ERROR] SVO: "<<x<<"\033[0;0m"<<std::endl; }
 #endif

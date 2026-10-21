@@ -192,7 +192,9 @@ void CeresBackendInterface::loadMapFromBundleAdjustment(
     imu_handler_->setAccelerometerBias(speed_and_bias.tail<3>());
     imu_handler_->setGyroscopeBias(speed_and_bias.segment<3>(3));
 
+#ifdef SVO_USE_ROS
     publisher_->addFrame(last_added_nframe_imu_);
+#endif
   }
 
   // shift state
@@ -724,11 +726,13 @@ void CeresBackendInterface::optimizationLoop()
       last_state_.setGyroBias(speed_and_bias.segment<3>(3));
 
       // publish current estimation
+#ifdef SVO_USE_ROS
       if (publisher_)
       {
         publisher_->publish(last_state_, last_added_frame_stamp_ns_,
                             last_optimized_nframe_.load());
       }
+#endif
     }  // release backend mutex.
   }
 

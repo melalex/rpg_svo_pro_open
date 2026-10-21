@@ -8,7 +8,9 @@
 #include <svo/vio_common/backend_types.hpp>
 
 #include "svo/ceres_backend/estimator.hpp"
+#ifdef SVO_USE_ROS
 #include "svo/ceres_backend_publisher.hpp"
+#endif
 
 namespace svo
 {
@@ -174,12 +176,14 @@ public:
    * @param[out]  publisher Publisher handle, shared with frontend for
    *              benchmarking purposes.
    */
+#ifdef SVO_USE_ROS
   void makePublisher(const ros::NodeHandle& nh_private,
                      std::shared_ptr<CeresBackendPublisher>& publisher)
   {
     publisher_.reset(new CeresBackendPublisher(nh_private, backend_.getMap()));
     publisher = publisher_;
   }
+#endif
 
   /**
    * @brief Set the IMU in backend
@@ -311,7 +315,9 @@ protected:
 
   // visualization
   ViNodeState last_state_;
+#ifdef SVO_USE_ROS
   CeresBackendPublisher::Ptr publisher_;
+#endif
 
   // loop closing
   std::mutex w_T_correction_mut_;
