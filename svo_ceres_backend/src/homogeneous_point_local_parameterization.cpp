@@ -72,6 +72,7 @@ bool HomogeneousPointLocalParameterization::plus(const double* x,
   return true;
 }
 
+#ifndef SVO_CERES_USE_MANIFOLD
 // Computes the minimal difference between a variable x and a perturbed variable x_plus_delta.
 bool HomogeneousPointLocalParameterization::Minus(const double* x,
                                                   const double* x_plus_delta,
@@ -79,6 +80,7 @@ bool HomogeneousPointLocalParameterization::Minus(const double* x,
 {
   return minus(x, x_plus_delta, delta);
 }
+#endif
 
 bool HomogeneousPointLocalParameterization::ComputeLiftJacobian(
     const double* x, double* jacobian) const
@@ -104,12 +106,14 @@ bool HomogeneousPointLocalParameterization::minus(const double* x,
   return true;
 }
 
+#ifndef SVO_CERES_USE_MANIFOLD
 // The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
 bool HomogeneousPointLocalParameterization::ComputeJacobian(
     const double* x, double* jacobian) const
 {
   return plusJacobian(x, jacobian);
 }
+#endif
 
 // The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
 bool HomogeneousPointLocalParameterization::plusJacobian(const double*,

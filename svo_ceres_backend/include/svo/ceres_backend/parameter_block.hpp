@@ -48,6 +48,7 @@
 // Eigen 3.2.7 uses std::binder1st and std::binder2nd which are deprecated since c++11
 // Fix is in 3.3 devel (http://eigen.tuxfamily.org/bz/show_bug.cgi?id=872).
 #include <ceres/ceres.h>
+#include "svo/ceres_backend/ceres_parameterization.hpp"
 #pragma diagnostic pop
 
 namespace svo {
@@ -141,14 +142,14 @@ class ParameterBlock
    * @param localParameterizationPtr The local parameterisation object to use.
    */
   virtual void setLocalParameterizationPtr(
-      const ceres::LocalParameterization* localParameterizationPtr)
+      const CeresParameterization* localParameterizationPtr)
   {
     local_parameterization_ptr_ = localParameterizationPtr;
   }
   /**
    * @brief The local parameterisation object to use.
    */
-  virtual const ceres::LocalParameterization* localParameterizationPtr() const
+  virtual const CeresParameterization* localParameterizationPtr() const
   {
     return local_parameterization_ptr_;
   }
@@ -162,7 +163,7 @@ class ParameterBlock
   /// @brief Whether or not this should be optimised at all (ceres::problem::setFixed)
   bool fixed_;
   /// @brief The local parameterisation object to use.
-  const ceres::LocalParameterization* local_parameterization_ptr_;
+  const CeresParameterization* local_parameterization_ptr_;
 };
 
 }  // namespace ceres_backend

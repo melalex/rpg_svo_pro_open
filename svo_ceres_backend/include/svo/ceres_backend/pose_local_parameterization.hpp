@@ -60,7 +60,7 @@ namespace ceres_backend {
 /// dx[0] - dx[2] translation
 /// dx[3] - dx[5] axis angle perturbation
 class PoseLocalParameterization :
-    public ceres::LocalParameterization,
+    public CeresParameterization,
     public LocalParamizationAdditionalInterfaces
 {
  public:
@@ -77,6 +77,7 @@ class PoseLocalParameterization :
   virtual bool Plus(const double* x, const double* delta,
                     double* x_plus_delta) const;
 
+#ifndef SVO_CERES_USE_MANIFOLD
   /// \brief Computes the minimal difference between a variable x and a
   ///        perturbed variable x_plus_delta.
   /// @param[in] x Variable.
@@ -85,11 +86,31 @@ class PoseLocalParameterization :
   /// \return True on success.
   virtual bool Minus(const double* x, const double* x_plus_delta,
                      double* delta) const;
+#endif
 
   /// \brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
   /// @param[in] x Variable.
   /// @param[out] jacobian The Jacobian.
+#ifndef SVO_CERES_USE_MANIFOLD
   virtual bool ComputeJacobian(const double* x, double* jacobian) const;
+#else
+  bool PlusJacobian(const double* x, double* jacobian) const override
+  {
+    return plusJacobian(x, jacobian);
+  }
+
+  /// Ceres' Minus(y, x) = y - x: the backend's minus(x, y).
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
+  {
+    return minus(x, y, y_minus_x);
+  }
+
+  /// d Minus(y, x) / dy at y = x: the lift Jacobian.
+  bool MinusJacobian(const double* x, double* jacobian) const override
+  {
+    return liftJacobian(x, jacobian);
+  }
+#endif
 
   /// \brief Computes the Jacobian from minimal space to naively overparameterised
   /// space as used by ceres. It is the inverse of the plusJacobian.
@@ -128,6 +149,7 @@ class PoseLocalParameterization :
   /// \return True on success.
   static bool liftJacobian(const double* x, double* jacobian);
 
+#ifndef SVO_CERES_USE_MANIFOLD
   /// \brief The parameter block dimension.
   virtual int GlobalSize() const
   {
@@ -139,6 +161,17 @@ class PoseLocalParameterization :
   {
     return 6;
   }
+#else
+  int AmbientSize() const override
+  {
+    return 7;
+  }
+
+  int TangentSize() const override
+  {
+    return 6;
+  }
+#endif
 
   // added convenient check
   bool VerifyJacobianNumDiff(const double* x, double* jacobian,

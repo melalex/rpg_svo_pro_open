@@ -40,6 +40,8 @@
 
 #pragma once
 
+#include "svo/ceres_backend/ceres_parameterization.hpp"
+
 namespace svo {
 namespace ceres_backend {
 
@@ -57,8 +59,12 @@ class LocalParamizationAdditionalInterfaces
   /// @param[in] x_plus_delta Perturbed variable.
   /// @param[out] delta minimal difference.
   /// \return True on success.
+  /// (With ceres::Manifold the parameterisation's own Minus(y, x, y_minus_x)
+  /// takes this role - same signature, Ceres' argument order.)
+#ifndef SVO_CERES_USE_MANIFOLD
   virtual bool Minus(const double* x, const double* x_plus_delta,
                      double* delta) const = 0;
+#endif
 
   /// \brief Computes the Jacobian from minimal space to naively
   ///        overparameterised space as used by ceres.

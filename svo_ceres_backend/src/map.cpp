@@ -55,8 +55,12 @@ Map::Map()
     : residual_counter_(0)
 {
   ceres::Problem::Options problemOptions;
+#ifdef SVO_CERES_USE_MANIFOLD
+  problemOptions.manifold_ownership = ceres::Ownership::DO_NOT_TAKE_OWNERSHIP;
+#else
   problemOptions.local_parameterization_ownership =
       ceres::Ownership::DO_NOT_TAKE_OWNERSHIP;
+#endif
   problemOptions.loss_function_ownership =
       ceres::Ownership::DO_NOT_TAKE_OWNERSHIP;
   problemOptions.cost_function_ownership =
@@ -688,13 +692,17 @@ bool Map::resetParameterization(uint64_t parameter_block_id,
 // Set the (local) parameterisation of a parameter block.
 bool Map::setParameterization(
     uint64_t parameter_block_id,
-    ceres::LocalParameterization* local_parameterization)
+    ceres_backend::CeresParameterization* local_parameterization)
 {
   if (!parameterBlockExists(parameter_block_id))
   {
     return false;
   }
+#ifdef SVO_CERES_USE_MANIFOLD
+  problem_->SetManifold(
+#else
   problem_->SetParameterization(
+#endif
       id_to_parameter_block_map_.find(parameter_block_id)->second->parameters(),
       local_parameterization);
   id_to_parameter_block_map_.find(parameter_block_id)->second

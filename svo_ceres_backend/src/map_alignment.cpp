@@ -1,4 +1,5 @@
 #include "svo/ceres_backend/map_alignment.hpp"
+#include "svo/ceres_backend/ceres_parameterization.hpp"
 #include <iomanip>
 #include <iostream>
 #include <svo/common/frame.h>
@@ -278,7 +279,11 @@ bool MapAlignmentSE3::solveJointOptimisation(const std::vector<cv::Point3f>& lan
   options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
   ceres::Solver::Summary summary;
   ceres::LossFunction* loss_function = new ceres::CauchyLoss(1.0);
+#ifdef SVO_CERES_USE_MANIFOLD
+  ceres::Manifold* quaternion_local_parameterization = new ceres::EigenQuaternionManifold;
+#else
   ceres::LocalParameterization* quaternion_local_parameterization = new ceres::EigenQuaternionParameterization;
+#endif
   Eigen::Matrix3d R = rel_pose.block(0,0,3,3);
   Eigen::Vector3d t = rel_pose.block(0,3,3,1);
   Eigen::Quaterniond q(R);
@@ -317,7 +322,11 @@ bool MapAlignmentSE3::solveJointOptimisation(const std::vector<cv::Point3f>& lan
     ceres::CostFunction* cost_function = ceres_backend::ReprojectionErrorSimple::Create(sqrt_information, p, P_c);
     problem.AddResidualBlock(cost_function, loss_function, t.data(), q.coeffs().data());
   }
+#ifdef SVO_CERES_USE_MANIFOLD
+  problem.SetManifold(q.coeffs().data(), quaternion_local_parameterization);
+#else
   problem.SetParameterization(q.coeffs().data(), quaternion_local_parameterization);
+#endif
   ceres::Solve(options, &problem, &summary);
   std::cout << summary.FullReport() << std::endl;
   t_rel_combined_.getRotation() = Transformation::Rotation(q);

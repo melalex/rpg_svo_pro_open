@@ -154,3 +154,8 @@ endif()
 target_link_libraries(svo_pro_open
   PUBLIC Eigen3::Eigen ${OpenCV_LIBS} Ceres::ceres glog::glog yaml-cpp Boost::boost
   PRIVATE svo_fast opengv pthread)
+
+# Numerical self-check of the Ceres Manifold port (svo_ceres_backend).
+add_executable(svo_manifold_check svo_ceres_backend/test/manifold_check.cpp)
+target_link_libraries(svo_manifold_check svo_pro_open)
+target_compile_options(svo_manifold_check PRIVATE ${SVO_ARCH_FLAGS})
