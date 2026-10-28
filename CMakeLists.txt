@@ -56,13 +56,17 @@ set(SVO_RELEASE_FLAGS
   -O3 -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops
   -ffast-math -fno-finite-math-only)
 
-# FAST corner detector (fast_neon's SSE path), linked in statically.
-add_library(svo_fast STATIC
+# FAST corner detector, linked in statically. fast_neon's SSE path on x86_64; elsewhere
+# (aarch64) the plain C++ FAST-10 - its NEON file wants armv7's __ARM_NEON__.
+set(SVO_FAST_SOURCES
   ${SVO_FAST_DIR}/src/fast_9.cpp
   ${SVO_FAST_DIR}/src/fast_10.cpp
   ${SVO_FAST_DIR}/src/fast_10_score.cpp
-  ${SVO_FAST_DIR}/src/nonmax_3x3.cpp
-  ${SVO_FAST_DIR}/src/faster_corner_10_sse.cpp)
+  ${SVO_FAST_DIR}/src/nonmax_3x3.cpp)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+  list(APPEND SVO_FAST_SOURCES ${SVO_FAST_DIR}/src/faster_corner_10_sse.cpp)
+endif()
+add_library(svo_fast STATIC ${SVO_FAST_SOURCES})
 target_include_directories(svo_fast PUBLIC ${SVO_FAST_DIR}/include)
 target_compile_options(svo_fast PRIVATE -O3 ${SVO_ARCH_FLAGS} -fomit-frame-pointer -Wno-unused-variable)
 
