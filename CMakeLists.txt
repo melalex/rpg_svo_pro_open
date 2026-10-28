@@ -55,6 +55,12 @@ endif()
 set(SVO_RELEASE_FLAGS
   -O3 -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops
   -ffast-math -fno-finite-math-only)
+if(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+  # Eigen's NEON sign flips (quaternion conjugate/inverse) XOR with a -0.0 mask that
+  # -fno-signed-zeros folds to +0.0: q.inverse() becomes q and the pose Minus breaks
+  # (svo_manifold_check). x86's SSE masks are integer bit patterns, unaffected.
+  list(APPEND SVO_RELEASE_FLAGS -fsigned-zeros)
+endif()
 
 # FAST corner detector, linked in statically. fast_neon's SSE path on x86_64; elsewhere
 # (aarch64) the plain C++ FAST-10 - its NEON file wants armv7's __ARM_NEON__.
